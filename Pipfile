@@ -7,6 +7,9 @@ name = "pypi"
 fastapi = {extras = ["standard"], version = "*"}
 python-dotenv = "*"
 requests = "*"
+pytest = "*"
+pytest-mock = "*"
+pyyaml = "*"
 
 [dev-packages]
 
