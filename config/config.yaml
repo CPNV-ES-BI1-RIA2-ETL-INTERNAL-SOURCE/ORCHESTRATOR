@@ -1,0 +1,27 @@
+steps:
+  - name: data_generator
+    method: GET
+    route: /api/v1.1/{resource}/{country}/{stop}
+    service: data_generator_service
+  - name: extract
+    method: GET
+    route: /api/v1/extract
+    service: extract_service
+  - name: transform
+    method: POST
+    route: /api/v1/transform
+    service: transform_service
+  - name: load
+    method: POST
+    route: /api/v1/load
+    service: load_service
+
+services:
+  data_generator_service:
+    url: http://data-generator:80
+  extract_service:
+    url: http://extract:80
+  transform_service:
+    url: http://transform:80
+  load_service:
+    url: http://load:80
