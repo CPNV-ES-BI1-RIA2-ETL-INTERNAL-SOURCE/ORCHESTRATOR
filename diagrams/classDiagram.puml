@@ -1,0 +1,60 @@
+@startuml
+package app{
+
+    class Orchestrator {
+        - workflow_manager: WorkflowManager
+        - caller: Caller
+        - config_loader: ConfigLoader
+        __
+        + __init__(self, workflow_manager: WorkflowManager, caller: Caller, config_loader: ConfigLoader)
+        + start_process(data: RequestModel) : List[Dict[str, Any]]
+    }
+
+    class WorkflowManager {
+        - steps: List[Dict[str, Any]]
+        - services : List[Dict[str, Any]]
+        __
+        + __init__(config)
+        + get_step(self, step_name: str)
+    }
+
+    class Caller {
+        __
+        + call_microservice(self, method: str, url: str, data: dict) : dict
+    }
+
+    class ConfigLoader {
+        __
+        + load_config(self, file_path: str) : dict
+    }
+}
+package microservices{
+}
+package handlers{
+    class ErrorHandler {
+        __
+        + handle_error(error: Exception) : dict
+        + log_error(error: Exception) : None
+    }
+}
+package models{
+    class DataRequest {
+        +name: str
+    }
+    class DataResult {
+        +data: str
+        +status: str
+        +error: Optional[str]
+    }
+    class RequestModel {
+        processes: List[Process]
+    }
+}
+
+' Relationships
+Orchestrator --> WorkflowManager
+Orchestrator --> Caller
+Orchestrator --> ConfigLoader
+Caller --> microservices
+
+@enduml

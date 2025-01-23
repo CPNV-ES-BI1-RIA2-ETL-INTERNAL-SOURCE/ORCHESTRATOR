@@ -21,11 +21,6 @@ List all dependencies and their version needed by the project as :
 
 You have to install pdf2text : [pdf2text](https://www.xpdfreader.com/download.html)
 
-Copy and modify the .env
-````shell
-cp .env.example .env
-````
-
 install the dependencies
 ````shell
 pipenv install
