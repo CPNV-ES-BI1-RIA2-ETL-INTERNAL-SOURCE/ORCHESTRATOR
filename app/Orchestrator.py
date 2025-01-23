@@ -27,7 +27,6 @@ class Orchestrator:
                     }
                     data_payload = {}
                     for step in self.workflow_manager.steps:
-                        print(step)
                         service_url = self.workflow_manager.get_step(step["name"])["service_url"]
                         route = step["route"]
                         method = step["method"]
