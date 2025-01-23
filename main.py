@@ -19,10 +19,17 @@ error_handler = ErrorHandler()
 orchestrator = Orchestrator(workflow_manager, caller, config_loader)
 
 
-@app.post("/start-process", response_model=RequestModel)
+@app.post("/start-process")
 def start_process(data: RequestModel):
     try:
-        return orchestrator.start_process(data)
+        response = orchestrator.start_process(data)
+
+        if all(item["status"] == "success" for item in response):
+            return {"status": "success", "message": "All processes completed successfully"}
+        else:
+            failed_processes = [item for item in response if item["status"] != "success"]
+            error_message = f"Failed processes: {', '.join([item['process'] for item in failed_processes])}"
+            raise HTTPException(status_code=500, detail=error_message)
     except Exception as e:
         error_handler.log_error(str(e))
         raise HTTPException(status_code=500, detail=str(e))
