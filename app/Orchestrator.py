@@ -20,26 +20,30 @@ class Orchestrator:
 
             for data_item in params.data:
                 try:
-                    data_payload = {
+                    url_params = {
                         "country": data_item.country,
                         "resource": data_item.resource,
                         "stop": data_item.stop,
                     }
-
+                    data_payload = {}
                     for step in self.workflow_manager.steps:
                         print(step)
                         service_url = self.workflow_manager.get_step(step["name"])["service_url"]
                         route = step["route"]
                         method = step["method"]
                         url = service_url + route
-                        url = url.format(**data_payload)
+                        url = url.format(**url_params)
+                        if "headers" in step:
+                            headers = step["headers"]
+                        else:
+                            headers = {}
 
                         try:
-                            response = self.caller.call_microservice(method, url, data_payload)
-                            data_payload = response
-
-                            if response.get("status") != "ok":
-                                raise Exception(f"Failed at step {step['name']} with status {response.get('status')}")
+                            response = self.caller.call_microservice(headers ,method, url, data_payload)
+                            if step["response_type"] == "application/json":
+                                data_payload = response.json()
+                            else:
+                                data_payload = response.text
 
                         except Exception as e:
                             results.append({
@@ -63,7 +67,6 @@ class Orchestrator:
                             "country": data_item.country,
                             "resource": data_item.resource,
                             "stop": data_item.stop,
-                            "date": data_item.date
                         },
                         "status": "error",
                         "error": str(e)
