@@ -2,26 +2,32 @@ steps:
   - name: data_generator
     method: GET
     route: /api/v1.1/{resource}/{country}/{stop}
+    headers:
+      Accept: application/pdf
     service: data_generator_service
+    response_type: application/json
   - name: extract
     method: GET
     route: /api/v1/extract
     service: extract_service
+    response_type: application/json
   - name: transform
     method: POST
-    route: /api/v1/transform
+    route: /api/v1/documents/transform
     service: transform_service
+    response_type: application/json
   - name: load
     method: POST
-    route: /api/v1/load
+    route: /api/v1/documents/load
     service: load_service
+    response_type: application/text
 
 services:
   data_generator_service:
-    url: http://data-generator:80
+    url: http://data-generator:8088
   extract_service:
-    url: http://extract:80
+    url: http://extract:8000
   transform_service:
-    url: http://transform:80
+    url: http://transform:8080
   load_service:
-    url: http://load:80
+    url: http://load:8080
