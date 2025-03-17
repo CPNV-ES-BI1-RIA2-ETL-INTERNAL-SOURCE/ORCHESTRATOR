@@ -1,24 +1,36 @@
-FROM python:3.13-slim
+FROM python:3.13-alpine AS builder
 
-WORKDIR /app
+WORKDIR /service
 
-RUN apt-get update && apt-get install -y --no-install-recommends iputils-ping \
-    gcc \
-    libpq-dev \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+COPY Pipfile Pipfile.lock ./
 
-COPY Pipfile Pipfile.lock /app/
+RUN pip install --no-cache-dir --no-input pipenv
+RUN pipenv install --system --deploy
 
-ENV PIPENV_CUSTOM_VENV_NAME=ORCHESTRATOR
-RUN pip install --no-cache-dir pipenv && pipenv install --deploy --ignore-pipfile
+# Test
+FROM builder AS test
+WORKDIR /service
 
-COPY . /app
+COPY tests ./tests
 
-# uncomment when this issue is resolved:
-# https://github.com/CPNV-ES-BI1-RIA2-ETL-INTERNAL-SOURCE/ORCHESTRATOR/issues/5#issue-2807636570
-#RUN pipenv run pytest
+RUN pipenv install --system --deploy --dev
+RUN python -m pytest
+
+# Runtime
+FROM python:3.13-alpine AS runtime
+
+RUN apk add --no-cache poppler-utils
+
+WORKDIR /service
+
+RUN mkdir /service/.venv
+
+COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
+COPY main.py ./
+COPY app ./app
+
+COPY config ./config
 
 EXPOSE 8000
 
-CMD ["pipenv", "run", "fastapi", "run"]
+CMD ["python", "-m", "fastapi", "run", "main.py", "--port", "8000"]
