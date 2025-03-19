@@ -1,0 +1,39 @@
+name: Python
+
+on:
+  push:
+    branches: [ "main", "develop", "release/**" ]
+  pull_request:
+    branches: [ "*" ]
+
+jobs:
+  test:
+      runs-on: ubuntu-latest 
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Build and test Docker image
+        run: | 
+          docker build --target test -f Dockerfile -t orchestrator:test . --no-cache
+          docker run --rm orchestrator:test
+
+  # Deploy to production only on main  
+  deploy-production:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build production Docker image
+      run: docker build --target runtime -t orchestrator:latest .
+
+    - name: Save Docker image to tar file
+      run: docker save -o orchestrator.tar orchestrator:latest
+
+    - name: Upload Docker image tar file
+      uses: actions/upload-artifact@v4
+      with:
+        name: orchestrator-tar
+        path: orchestrator.tar
