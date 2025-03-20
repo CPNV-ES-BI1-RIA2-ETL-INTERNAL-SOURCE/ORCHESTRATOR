@@ -1,8 +1,8 @@
-name: Python
+name: 'Prevent main from untested code'
 
 on:
   push:
-    branches: [ "main", "develop", "release/**" ]
+    branches: [ "main", "master", "develop", "release/**" ]
   pull_request:
     branches: [ "*" ]
 
@@ -18,10 +18,10 @@ jobs:
           docker build --target test -f Dockerfile -t orchestrator:test . --no-cache
           docker run --rm orchestrator:test
 
-  # Deploy to production only on main  
-  deploy-production:
+  # Publish artifact for production only on main  
+  publish-artifact:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
