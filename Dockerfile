@@ -15,9 +15,7 @@ RUN pip install --no-cache-dir pipenv && pipenv install --deploy --ignore-pipfil
 
 COPY . /app
 
-# uncomment when this issue is resolved:
-# https://github.com/CPNV-ES-BI1-RIA2-ETL-INTERNAL-SOURCE/ORCHESTRATOR/issues/5#issue-2807636570
-#RUN pipenv run pytest
+RUN pipenv run pytest
 
 EXPOSE 8000
 
