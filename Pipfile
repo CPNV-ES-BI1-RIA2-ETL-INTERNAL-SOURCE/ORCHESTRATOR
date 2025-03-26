@@ -10,6 +10,7 @@ requests = "*"
 pytest = "*"
 pytest-mock = "*"
 pyyaml = "*"
+python-jose = "*"
 
 [dev-packages]
 
