@@ -27,6 +27,12 @@ package app{
         __
         + load_config(self, file_path: str) : dict
     }
+
+    class AuthManager {
+        __
+        + login(self, credentials: dict) : dict
+        + verify_token(self, token: str) : dict
+    }
 }
 package microservices{
 }
