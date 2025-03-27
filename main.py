@@ -1,6 +1,5 @@
-from fastapi import FastAPI, HTTPException, Body
-from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
+from fastapi import FastAPI, HTTPException, Body, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.AuthManager import AuthManager
 from app.Orchestrator import Orchestrator
@@ -24,6 +23,17 @@ authManager = AuthManager()
 workflow_manager = WorkflowManager(config_loader.load_config('config/config.yaml'))
 error_handler = ErrorHandler()
 orchestrator = Orchestrator(workflow_manager, caller, config_loader)
+security = HTTPBearer()
+
+async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    result = await authManager.verify_token(credentials.credentials)
+    if result["status"] == "invalid":
+        raise HTTPException(
+            status_code=401,
+            detail=result["error"],
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return result["payload"]
 
 @app.post("/v1/login")
 def login( credentials: dict = Body(...)):
@@ -33,8 +43,12 @@ def login( credentials: dict = Body(...)):
         error_handler.log_error(e)
         raise HTTPException(status_code=500, detail=e)
 
+
 @app.post("/v1/start-process")
-def start_process(data: RequestModel):
+def start_process(
+        data: RequestModel,
+        # token_data: dict = Depends(verify_token) ISSUE: https://github.com/CPNV-ES-BI1-RIA2-ETL-INTERNAL-SOURCE/ORCHESTRATOR/issues/15
+):
     try:
         response = orchestrator.start_process(data)
 
