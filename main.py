@@ -19,7 +19,7 @@ error_handler = ErrorHandler()
 orchestrator = Orchestrator(workflow_manager, caller, config_loader)
 
 
-@app.post("/api/v1/start-process")
+@app.post("/v1/start-process")
 def start_process(data: RequestModel):
     try:
         response = orchestrator.start_process(data)
