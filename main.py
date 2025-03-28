@@ -10,7 +10,10 @@ from typing import List
 
 from app.models.RequestModel import RequestModel
 
-app = FastAPI()
+app = FastAPI(
+    openapi_prefix="/api",
+    title="Orchestrator API",
+)
 
 config_loader = ConfigLoader()
 caller = Caller()
